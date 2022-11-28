@@ -1,0 +1,157 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Packages
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{xspace}
+\usepackage{float}
+\usepackage{pgf}
+\usepackage{tikz}
+\usetikzlibrary{backgrounds,arrows,automata,positioning,calc,shadows,fit, patterns}
+\usetikzlibrary{shapes.geometric}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{changepage}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Environments
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem*{metaproblem}{Meta Problem}
+\newtheorem{realproblem}[theorem]{Problem}
+\newtheorem{fact}[theorem]{Fact}
+
+\newenvironment{proofsketch}{\noindent\emph{Proof sketch.}}{\hfill$\square$}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem{example}{Example}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Misc. Math
+
+\newcommand{\cceq}{\mathop{::=}}
+\newcommand{\myeq}[1]{\stackrel{\text{#1}}{\Leftrightarrow}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Greek Letters
+\renewcommand{\epsilon}{\varepsilon}
+\renewcommand{\phi}{\varphi}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Basic Math
+
+\newcommand{\pow}[1]{2^{#1}}
+\newcommand{\nats}{\mathbb{N}}
+\newcommand{\size}[1]{|#1|}
+\newcommand{\set}[1]{\{ #1 \}}
+\newcommand{\ap}[0]{\mathrm{AP}}
+\newcommand{\subword}{\preceq}
+\newcommand{\nsubword}{\npreceq}
+\newcommand{\popartitions}[1]{\mathcal{POP}(#1)}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% LTL operators
+
+\newcommand{\true}{\mathbf{tt}}
+\newcommand{\false}{\mathbf{ff}}
+\newcommand{\F}{{\mathbf{F\,}}}
+\newcommand{\G}{{\mathbf{G\,}}}
+\newcommand{\U}{{\mathbf{\,U\,}}}
+\newcommand{\X}{{\mathbf{X\,}}}
+\newcommand{\R}{{\mathbf{\,R\,}}}
+\newcommand{\Exists}{{\mathbf{E\,}}}
+\newcommand{\All}{{\mathbf{A\,}}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Abbrev. for Logics
+
+\newcommand{\ltl}{{LTL}\xspace}
+\newcommand{\ctl}{{CTL}\xspace}
+\newcommand{\ctlstar}{{CTL$^*$}\xspace}
+\newcommand{\fol}{{FO}$[<]$\xspace}
+\newcommand{\fole}{{FO}$[<,\,E]$\xspace}
+\newcommand{\logics}{$\Lambda$}
+\newcommand{\hylogics}{Hyper$\Lambda$\xspace}
+\newcommand{\msol}{{MSO}$[<]$\xspace}
+
+
+\newcommand{\suffix}[2]{#1^{\geq #2}}
+\newcommand{\prefix}[2]{#1^{\leq #2}}
+\newcommand{\var}{\mathcal{V}}
+\newcommand{\eqpoint}[1]{=_{#1}}
+\newcommand{\subtree}[2]{#1_{\downarrow #2}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Trace names
+
+\newcommand{\pit}{\pi\text{-trace}}
+\newcommand{\taut}{\tau\text{-trace}}
+\newcommand{\pits}{\pi\text{-traces}}
+\newcommand{\tauts}{\tau\text{-traces}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Complexity
+
+\newcommand{\poly}{\textsc{P}\xspace}
+\newcommand{\np}{\textsc{NP}\xspace}
+\newcommand{\conp}{\textsc{coNP}\xspace}
+\newcommand{\sigmatwo}{$\Sigma_2^{\textsc{P}}$\xspace}
+\newcommand{\pitwo}{$\Pi_2^{\textsc{P}}$\xspace}
+\newcommand{\sigmathree}{$\Sigma_3^{\textsc{P}}$\xspace}
+\newcommand{\pspace}{\textsc{PSpace}\xspace}
+\newcommand{\expt}{\textsc{ExpTime}\xspace}
+\newcommand{\nexpt}{\textsc{NExpTime}\xspace}
+\newcommand{\exps}{\textsc{ExpSpace}\xspace}
+\newcommand{\twoexpt}{\textsc{2ExpTime}\xspace}
+\newcommand{\tower}{\textsc{Tower}\xspace}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Trees
+\newcommand{\aut}{\mathcal{A}}
+\newcommand{\lang}[1]{\mathcal{L}(#1)}
+\newcommand{\initmark}{I}
+\newcommand{\kripke}{\mathcal{K}}
+\newcommand{\src}[1]{src(#1)}
+\newcommand{\tgt}[1]{tgt(#1)}
+\newcommand{\runs}[1]{\mathcal{R}(#1)}
+\newcommand{\traces}[1]{\mathcal{L}(#1)}
+\newcommand{\trace}[1]{tr(#1)}
+\newcommand{\game}{\mathcal{G}}
+\newcommand{\val}[2]{val_{#1,#2}}
+\newcommand{\valstrat}[3]{val^{#2,#3}_{#1}}
+\newcommand{\trees}[1]{\mathcal{T}(#1)}
+\newcommand{\subformulas}[1]{{Sub(#1)}}
+\newcommand{\sons}[2]{Sons_{#2}(#1)}
+\newcommand{\treeroot}[1]{root(#1)}
+\newcommand{\ancestor}[1]{\preccurlyeq_{#1}}
+\newcommand{\descendant}{\succcurlyeq}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Probabilities
+
+\newcommand{\distri}[1]{\mathcal{D}(#1)}
+\newcommand{\proba}[1]{\mathbb{P}(#1)}

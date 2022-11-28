@@ -1,0 +1,69 @@
+\synctex=1
+
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+
+\input{Preamble}
+
+\newcommand{\corto}[1]{\todo[color=red!30,inline]{\small #1}}
+
+
+
+
+\title{Undecidability of verification of $\set{0,1, \omega}$ strategies}
+\author{}
+\date{}
+
+\begin{document}
+	
+	\maketitle
+
+Consider a two-counter system $\S = (S, \delta, init, fin)$ with $\delta : S \times \set{\top, \bot}^2 \to \set{1,2} \times Op \times S$ and $Op = \set{++, --}$.
+Intuitively, $\delta$ takes as input the current state and two booleans indicating if the counters are equal to $0$ or not. It outputs an operation, a counter on which to apply it and a new state.
+
+Note that this machine has a single run from its initial configuration $(init, 0, 0)$.
+The problem whether such a machine is unbounded (that is, one of its counters reaches arbitrarily high values along its run) is undecidable.
+
+Consider the following population game: There is a place for each state $s \in S$, two places for each counter, two more forming a reservoir of tokens, plus a starting and a final place.
+
+We have an action for each $(s, b1, b2) \in S \times \set{\top, \bot}^2$, plus special letters $start, empty, win, shuffle$.
+
+The letter $start$ takes all tokens from the starting place and splits them between the reservoir and the place associated to $init$.
+The letter $empty$ can only be played if all places associated with states are empty, and it sends all tokens to the final place.
+As for $win$, it can only be played if the reservoir is empty, and it sends all tokens to the final place.
+Finally, $shuffle$ redistributes randomly the tokens between each pair of states associated with the reservoir and each counter.
+
+For each $(s, b1, b2)$, with $\delta(s, b1, b2) = (i, op, t)$, the associated action can only be played if all places associated with states besides $s$ are empty, and transfers the ones in $s$ to $t$.
+
+If $op = ++$ then it transfers all tokens from one of the two places of the reservoir to counter $i$.
+If $op = --$ then it transfers all tokens from one of the two places of counter $i$ to the reservoir.
+
+We consider the strategy that consists in executing faithfully the two-counter machine. It starts by executing $start$. If no token reaches the places associated with states, it reads $empty$ and wins.
+
+Otherwise it executes $shuffle$ until in the three pairs of places associated with the counters and the reservoir the tokens are split between one token on a side and all others on the other side.
+
+Then it reads the action associated with $s, b1, b2$, where $s$ is the unique state where there are tokens, and $b1$ and $b2$ are true if, respectively, there are no tokens in the states of counters $1$ and $2$. Thanks to the previous paragraph, we know that exactly one token is transferred from the decremented counter to the reservoir, or from the reservoir to the incremented counter.
+
+If at any point the reservoir is empty, it plays action $win$.
+
+An easy induction shows that if the play yielded by this strategy goes through $n$ actions $(s,b1, b2)$, then those are the $n$ first actions of the machine, and if the configuration of the machine after executing them is $(s, c1, c2)$, then the the resulting configuration in the game is such that 
+\begin{itemize}
+	\item There are tokens in $s$ but not in any other state $t$.
+	
+	\item There are $c1$ tokens in total in the two places of counter $1$, and $c2$ in the places of counter $2$.
+\end{itemize}
+
+As a result if the machine is bounded by a bound $B$, then if at the start there are $2B + 2$ tokens, there is a positive probability that one of them is sent to the states, and $2B+1$ to the reservoir at the start. Then the reservoir will never be empty (as there are at most $2B$ tokens in the counters and one in the states and zero elsewhere at all times), and neither will the states. Hence the strategy is not winning.
+
+If the machine is unbounded, then let $N \in \nats$, say we start with $N$ tokens.
+If none of them are sent to the states then we win immediately by playing $empty$.
+Otherwise there are $K < N$ tokens sent to the reservoir. The strategy simulates the machine until we reach a configuration where the sum of the counters is above $K$ (which happens eventually as it is unbounded). Then we play $win$ and win.
+
+As a result, the strategy is winning if and only if the machine is unbounded.
+Furthermore this strategy bases its decisions solely on the $0, 1, \omega$ abstraction of the current configuration.
+
+As a consequence, the verification of a (positional) $(0, 1, \omega)$ strategy for population games is undecidable.
+
+	
+\end{document}

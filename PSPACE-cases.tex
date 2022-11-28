@@ -1,0 +1,110 @@
+\synctex=1
+
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+
+
+\input{Preamble}
+
+
+\newcommand{\corto}[1]{\todo[color=red!30]{\small #1}}
+\newcommand{\cortoin}[1]{\todo[color=red!30,inline]{\small #1}}
+
+
+
+
+\title{Population games on polynomially ambiguous automata}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+An automaton is \emph{very weak} if there exists a total order $\leq$ on its states such that all transitions $(s, a, t)$ are such that $s \leq t$.
+In the first section we prove that deciding stochastic population games on such automata is PSPACE-hard.
+
+An automaton is \emph{polynomially ambiguous} if there exists a polynomial function $f : \nats \to \nats$ such that for all $w \in \Sigma^*$, $w$ labels at most $f(\size{w})$ accepting runs. 
+If we assume that automata are trimmed (that is, all states are reachable from an initial state and can reach a final one), this is equivalent to saying that for all states $s$ and words $w$ there is at most one path from $s$ to itself reading $w$.
+In the second section we prove that we can decide stochastic population games on such automata in PSPACE.
+
+As very weak automata are polynomially ambiguous, we obtain PSPACE-completeness of the problem for both those classes.
+
+\section{Lower bound}
+
+Here is a PSPACE lower bound: 
+
+We reduce the emptiness problem for Zielonka automata. Those are automata over a set $Proc$ of processes, with a family of sets of states $(S_p)_{p \in Proc}$, another of initial states $(init_p)_{p \in Proc}$, a set of global final states $F \subseteq \Pi_{p\in Proc} S_p$ and transitions of the form $(s_{p_1}, \ldots, s_{p_k}) \xrightarrow{a} (s'_{p_1}, \ldots, s'_{p_k})$, with $p_1, \ldots, p_k \in Proc$.
+
+We set up the following game: 
+
+It consists of two parts: One will be in charge of simulating the effect of the sequence of actions chosen by the player on the configuration of the automaton.
+
+The other is a timer (in the form of a binary counter) ensuring that at most  $M = \Pi_{p\in Proc} |S_p|$ are played.
+
+We first describe the automaton simulation: 
+
+We have a reservoir of tokens, and one place for each state of each process.
+The actions are the transitions of the automaton. The effect of an action $(s_{p_1}, \ldots, s_{p_k}) \xrightarrow{a} (s'_{p_1}, \ldots, s'_{p_k})$ is to send all tokens from the $s_{p_i}$ to the target place, kill all tokens in the other states of the $p_i$, split the tokens of the reservoir between itself and the $s'_{p_i}$ and loop on all states of all other processes.
+
+For all $(f_p)_{p \in Proc} \in F$ we have an action that sends all tokens from the $f_p$ and the reservoir to the target place, and kills all other places. 
+
+Observe that if the automaton accepts a word, then it accepts one of size less than $M$, and we can send all tokens to the target place by reading an accepting sequence of that word, then the action corresponding to the final configuration reached.  
+
+Now suppose we can send all tokens to the target with $M$ actions, then by starting with a large enough number of tokens, there is a positive probability that all splits of the reservoir send at least one token in all its successors. As a result, a winning run in $M$ moves has to simulate a run of the automaton. 
+In order to be winning, it needs to end with some $f \in F$, hence the corresponding run is accepting. 
+
+Now we describe the other part of the game, playing in parallel.
+We set $n$ as the integer part of $log_2(M)+1$. We have $2n$ places, of the form $(j,b)$ with $0 \leq j \leq  n$ and $b \in \set{0,1}$, plus a reservoir.
+An action is a number $0\leq i < n$. Its effect is to send all tokens of $(i', 0)$ to $(i', 1)$ and kill those in $(i',1)$ for all $i'\leq i$. It also kills the tokens in $(i,0)$, sends the tokens of $(i,1)$ to the target and splits the tokens of the reservoir between itself and $(i,0)$. It leaves the rest untouched.
+
+For each $i$ there is also an action $end_i$ which kills all tokens in $(i,0)$ and sends all others to the target state.
+
+Now we describe the entire game: We take the union of the two parts described above, plus initial and final places. At first the tokens of the initial place are split between the reservoirs of the two parts, as well as the places $(init_p)_{p \in Proc}$ and $(i,1)$.
+
+Then the rest of the actions are pairs $(x,y)$ with $x$ an action of the automaton part and $y$ an action of the counter part.
+
+Their effects are applied independently on each part of the graph.
+
+Suppose there is an accepting run of the automaton, then there is one of length less than $M < 2^n$, hence we can play the corresponding actions in the automaton part while decreasing the counter in the other part at each step.
+In the end the counter has not reached $0$, hence there is an $i$ such that $(i,0)$ is empty. Meanwhile, the automaton has reached a final configuration $f \in F$, hence we can play $(end_i, f)$ and win.
+
+Now suppose there is a winning strategy. We can assume that are numerous enough so that during the first $M$ steps of the play every reached enabled transition is taken by some tokens at all times.
+
+As a consequence, such a play cannot last more than $M$ steps, as otherwise the binary counter would reach $0$, with tokens in all $(i,0)$ places, meaning that no action can be played without killing some of them.
+Hence in the automaton part we had to follow an accepting run.
+
+\section{Upper bound}
+
+Let $\aut = (S, \Sigma, \Delta, init, fin)$ be a \textbf{complete} polynomially ambiguous automaton with one initial and one final state. We can assume completeness as adding a sink state to an incomplete automaton preserves the polynomially ambiguous property.
+
+We define the support of a configuration $C \in \nats^S$ as $supp(C) = \set{s \in S \mid C(s) > 0}$.
+
+A strategy $\sigma : \nats^S \to \Sigma$ for the associated population game is \emph{simple} if for all $C, C' \in \nats^S$, if $supp(C) = supp(C')$ then $\sigma(C) = \sigma(C')$.
+
+
+
+\begin{lemma}
+	If there is a winning strategy for the population game over $\aut$, then there is a simple strategy  
+\end{lemma}
+
+\begin{proof}
+	
+\end{proof}
+
+We now consider the $\#$-expressions defined by the grammar \[E ::= a (a \in \Sigma) \mid EE \mid E^\#\].
+
+To all $\#$-expressions $E$ we associate a transition matrix $M(E)$ defined inductively as follows:
+
+\begin{itemize}
+	\item $M(a)$ is the transition matrix of $a$ for all $a \in \Sigma$.
+	
+	\item $M(E_1 E_2) = M(E_1) M(E_2)$ for all $E_1, E_2$ 
+	
+	\item $M(E^\#)$ is only defined if $M(EE) = M(E)$ and then $M(E^\#) [s_1,s_2]$ is $\top$ if and only if $M(E)[s_1, s_2] = \top$, $M(E) [s_2, s_2] = \top$ and $M(E)[s_2, s] = \bot$ for all $s \neq s_2$ 
+\end{itemize}
+
+If a matrix is idempotent
+
+\end{document}
