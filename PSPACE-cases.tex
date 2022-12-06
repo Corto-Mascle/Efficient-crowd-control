@@ -7,10 +7,21 @@
 
 \input{Preamble}
 
+\usepackage{algpseudocode}
+\usepackage[notion,quotation]{knowledge}
+
+\input{kl}
+\newif\ifappendix
+\newrobustcmd\introinrestatable[1]{%
+	\ifappendix%
+	\kl{#1}%
+	\else%
+	\intro{#1}%
+	\fi%
+}
 
 \newcommand{\corto}[1]{\todo[color=red!30]{\small #1}}
 \newcommand{\cortoin}[1]{\todo[color=red!30,inline]{\small #1}}
-
 
 
 
@@ -77,34 +88,328 @@ Hence in the automaton part we had to follow an accepting run.
 
 \section{Upper bound}
 
-Let $\aut = (S, \Sigma, \Delta, init, fin)$ be a \textbf{complete} polynomially ambiguous automaton with one initial and one final state. We can assume completeness as adding a sink state to an incomplete automaton preserves the polynomially ambiguous property.
+Let $\aut = (S, \Sigma, \Delta, init, fin)$ be a \textbf{complete} polynomially ambiguous automaton with one initial and one final state (which we can assume to be a sink state). We can assume completeness as adding a sink state to an incomplete automaton preserves the polynomially ambiguous property.
 
 We define the support of a configuration $C \in \nats^S$ as $supp(C) = \set{s \in S \mid C(s) > 0}$.
 
-A strategy $\sigma : \nats^S \to \Sigma$ for the associated population game is \emph{simple} if for all $C, C' \in \nats^S$, if $supp(C) = supp(C')$ then $\sigma(C) = \sigma(C')$.
+A strategy $\sigma : \nats^S \to \Sigma$ for the associated population game is \intro{simple} if for all $C, C' \in \nats^S$, if $supp(C) = supp(C')$ then $\sigma(C) = \sigma(C')$.
 
+A \intro{split} is a pair $(C,a)$ such that $C$ is a configuration and $a$ an action such that there exists $s \in supp(C)$ such that $\Delta(s,a) > 1$.
 
+A support is \emph{winning} if the configurations obtained by putting arbitrary numbers in its states are all winning.
 
 \begin{lemma}
-	If there is a winning strategy for the population game over $\aut$, then there is a simple strategy  
+	\label{lem:simple-strat}
+	There exists a "simple" strategy guaranteeing that:
+	\begin{itemize}
+		\item The target configuration is eventually reached from every configuration with a winning support.
+		
+		\item There is a bound $M$ such that for all $N$, from every configuration with $N$ tokens and winning support, there is a positive probability $p$ that a token moves to a different SCC of the automaton within the next $M$ steps while following this strategy.
+	\end{itemize} 
 \end{lemma}
 
 \begin{proof}
+	Let $sup$ be a winning support different from $\set{fin}$, we show that there exists a word $w$ such that by reading $w$ from a configuration of $sup$ we are guaranteed to stay in configurations of winning supports and there is a path labelled by $w$ from one of the non-empty states of the configuration to a state in a different SCC.
 	
+	Suppose it is not the case.
+	If a word $w$ is such that $\Delta(s, w)$ intersects an SCC different from the one of $s$ then $\Delta(sup, w)$ is not a winning support. Otherwise $\Delta(s, w)$ is included in the SCC of $s$, and $w$ can label at most $\size{S}$ paths from $s$, as otherwise there would be some $t$ in the same SCC as $s$ such that $w$ labels two paths from $s$ to $t$. As they are in the same SCC, there is a path from $t$ to $s$ labelled by some word $v$, and thus $wv$ labels two paths from $s$ to itself, contradicting the assumption that $\aut$ is polynomially ambiguous.
+	
+	As a consequence, all words read from $sup$ either lead to a non-winning support or label at most $\size{S}^2$ paths from states of $sup$ (at most $\size{S}$ from each state).
+	
+	Let $N$ be such that for all non-winning support $sup'$, $(sup')^N$ is not a winning configuration.
+	
+	We can start with a number of tokens high enough in each state of $sup$ so that there is a positive probability that at least $N$ tokens spread to each successor of each non-empty state during the first $\size{S}^2$ "split" actions.
+	
+	Thus the actions selected by $\sigma$ up to the $\size{S}^2$th "split" have to form a word $w$ such that $\Delta(s, w)$ is included in the SCC of $s$ for all $s \in sup$, otherwise the configuration obtained would be higher than $(sup')^N$ with $sup'$ a non-winning support, and thus $\sigma$ would not be winning.
+	
+	As a result, the $\size{S}^2$th split action can never happen, as it would get to a losing configuration with positive probability.
+	
+	Thus $\sigma$ has to keep playing forever without ever getting all tokens to $fin$, as $sup = fin$ and tokens cannot leave their SCCs. Hence $\sigma$ is losing, yielding a contradiction.
+
+	Then we construct our "simple" strategy as follows: for all $sup \in \pow{S}$, it picks an arbitrary word whose prefixes all lead to winning supports, and which labels a path from one of the states of $sup$ to a state of a different SCC, of minimal length. Our strategy plays the first letter of that word.
+	
+	Let $m$ be the maximal length of one of those words over all winning supports.
+	At all times there is a probability at least $\frac{1}{\size{S}^m}$ that a token reaches a different SCC within the next $m$ steps, and we always stay in the set of winning supports. As a result, eventually all tokens must reach $fin$.
+	
+	Thus our strategy is winning. 
+	
+%	Consider an infinite run $C_0 \xrightarrow{a_1} C_1 \xrightarrow{a_2} \cdots$ respecting $\sigma$ and such that the first $\size{S}^2+1$ "split" actions are such that tokens spread to all successors of all non-empty states (this is possible with enough tokens).
+%	For all $i$ let $w_i = a_1 \cdots a_i$. By assumption for all $i$ 
+%	
+%	We consider a strategy $\sigma : \nats^S \to \Sigma$, which is positional and winning from every winning configuration.
+%	
+%	For all $w \in \Sigma^*$, there are at most 
+%	
+%	
+%	
+%	We construct our simple strategy as follows: 
+%	
+%	We have a set $\mathcal{C} \subseteq \pow{S}$ of supports, initially empty.
+%	
+%	We pick a winning support $sup_0$ outside of $\mathcal{C}$. If there is none, we stop.
+%	We also set $I_0 = \nats$.
+%	
+%	For all $i \in \nats$, we define inductively $a_{i+1}$ such that $\sigma(sup_{i}^N) = a_{i+1}$ for infinitely many $N \in I_i$, where $sup_{i}^N$ is the configuration obtained by putting $N$ tokens in each state of $sup_i$. We also define the infinite set $I_{i+1} = \set{N \in I_i \mid \sigma(sup_i^N)=a_{i+1}}$ and $sup_{i+1} = \Delta(sup_i, a_{i+1})$.
+%	
+%	Clearly all $sup_i$ are winning supports: $sup_0$ is a winning support, and for all $i$, if $sup_i$ is a winning support, then for infinitely many $N$, $sup_i^N$ is a winning configuration. Let $N \in \nats$, there exists $K \in I_{i+1}$ large enough such that by playing $a_{i+1}$ from $sup_i^K$ we have a positive probability of getting a configuration with at least $N$ tokens in all states of $sup_{i+1}$.
+% 	The set of winning configurations is downwards-closed, hence $sup_{i+1}^N$ is winning for all $N$.
+% 	 
+%	Then we distinguish cases: 
+%	
+%	\paragraph{If $supp_{i} \notin \mathcal{C}$ for all $i$:} Then there exists $0 \leq i_1 < i_2 \leq \pow{\size{S}}$ such that $sup_i = sup_j$.
+%	
+%	We prove that either one of the actions $a_i$, $i_1 < i \leq i_2$ is a "split" or a "merge", or one of the supports $sup_i$, $i_1 \leq i < i_2$, is $\set{fin}$:
+%	suppose we are not in the first case, then we pick some $N \in I_{i_2}$. As $(I_i)_{i \in \nats}$ is a decreasing sequence, we have $N \in I_{i}$ for all $i_1 \leq i < i_2$. 
+%	As no action $a_i$, $i_1 \leq i \leq i_2$, is a "split" or a "merge" on $sup^N_{i-1}$, for all $0 \leq j \leq i_2 - i_1$, after playing $j$ moves from $sup^N_{i_1}$ according to $\sigma$, we obtain the configuration $sup_{i_1 + j}^N$, as each group of $N$ tokens just moves without ever splitting or encountering another one.
+%	Hence after $i_2 - i_1$ steps, we obtain $sup_{i_2}^N = sup_{i_1}^N$, meaning that $\sigma$ only visits configurations $\set{sup_i^N \mid i_1 \leq i \leq i_2}$ from then on. As $\sigma$ is winning, one of those configurations has to be $\set{fin}^N$, hence we have $sup_i = \set{fin}$ for some $i_1 \leq i < i_2$.
+%	
+%	For all $sup_i$, $i \in \nats$, we set $\sigma'(sup_i) = a_{j+1}$, with $j = min \set{i' \in \nats \mid sup_{i'} = sup_i}$.
+%	
+%	\paragraph{If $sup_{i} \in \mathcal{C}$ for some $i$:} We pick the minimal such $i$, and for all $j < i$ we set $\sigma'(sup_j) = a_j$.
+%	
+%	
+%	We iterate this construction until $\mathcal{C}$ is the set of all winning supports.
+%	We obtain a strategy that stays in the configurations with winning supports, and guarantees that from every such configuration we eventually do a "split", a "merge", or reach the target configuration. 
+%	
+%	All that is left to do is to prove that this strategy is winning from all configurations with winning supports.
+%	
+%	We can do at most $\size{S}$ merges without splitting, as a merge decreases the number of states containing tokens.
+%	
+%	Say we may have a run with more than $\size{S}^2$ splits and such that at no point may any token leave its current connected component. Let $a_1 \cdots a_n$ be the letters read along that run.
+%	For all $s \in S$, 
+%	
+%	
 \end{proof}
 
-We now consider the $\#$-expressions defined by the grammar \[E ::= a (a \in \Sigma) \mid EE \mid E^\#\].
+We now consider flows, which are just elements of $\pow{S^2}$.
+Given a flow $f$, we define $pre(f) = \set{s \in S \mid \exists t \in S, (s,t) \in f}$ and $post(f) = \set{t \in S \mid \exists s \in S, (s,t) \in f}$
+We equip then with a composition operation:
 
-To all $\#$-expressions $E$ we associate a transition matrix $M(E)$ defined inductively as follows:
+If $post(f_1) = pre(f_2)$, we define their composition as \[f_1 \cdot f_2 = \set{(s, t) \mid \exists s' \in S, (s, s') \in f_1 \land (s', t) \in f_2}\]
+
+We now define accelerations: 
+
+If $f\cdot f = f$ (i.e. $f$ is idempotent), then its acceleration is \[f^\# = \set{(s,t) \mid (t, t) \in f \land (t,t') \notin f \text{ for all } t' \neq t \land (s, t) \in f }\]
+
+We now consider the $\#$-expressions defined by the grammar \[E ::= a (a \in \Sigma) \mid EE \mid E^\#\]
+
+To all $\#$-expressions $E$ we associate a flow $f(E)$ defined inductively as follows:
 
 \begin{itemize}
-	\item $M(a)$ is the transition matrix of $a$ for all $a \in \Sigma$.
+	\item $f(a) = \set{(s,t) \mid t \in \Delta(s,a)}$ for all $a \in \Sigma$.
 	
-	\item $M(E_1 E_2) = M(E_1) M(E_2)$ for all $E_1, E_2$ 
+	\item $f(E_1 E_2) = f(E_1)\cdot f(E_2)$ (if the product is defined) for all $E_1, E_2$ 
 	
-	\item $M(E^\#)$ is only defined if $M(EE) = M(E)$ and then $M(E^\#) [s_1,s_2]$ is $\top$ if and only if $M(E)[s_1, s_2] = \top$, $M(E) [s_2, s_2] = \top$ and $M(E)[s_2, s] = \bot$ for all $s \neq s_2$ 
+	\item $f(E^\#) = f(E)^\#$ (if the acceleration is defined) for all $E$ 
 \end{itemize}
 
-If a matrix is idempotent
+\begin{lemma}
+	\label{lem:post-idem}
+	For all idempotent $f \in \pow{S^2}$, $f^\# \subseteq f$ and if $post(f^\#) = post(f)$ then $f = f^\#$.  
+\end{lemma}
+
+\begin{proof}
+	The fact that $f^\# \subseteq f$ follows directly from the definition.
+	Suppose $post(f^\#) = post(f)$, and let $(s,t) \in f$. 
+	As $t \in post(f^\#)$, we have that $(t,t) \in f$ and $(t,t') \notin f$ for all $t'\neq t$. As a result, $(s,t) \in f^\#$. 
+	Thus $f = f^\#$.
+\end{proof}
+
+\begin{lemma}
+	\label{lem:word-exp}
+	For all $E$, there exists $w \in \Sigma^*$ such that $f(E) \subseteq \Delta(w)$.
+	Furthermore, for all $s \in S$ there exists $t \in S$ such that $(s,t) \in f(E)$.
+\end{lemma}
+
+\begin{proof}
+	We prove this by induction on the number of $\#$ in $E$.
+	If $E$ contains no $\#$ then $E \in \Sigma^*$ and $f(E) = \Delta(E)$.
+	If $E$ is of the form $E_1(E_2)^\# E_3$ then by induction hypothesis there exist $w_1, w_2, w_3$ with $f(E_i) \subseteq \Delta(w_i)$ for each $i$.
+	As a consequence $f(E_2^\#) \subseteq f(E_2) \subseteq \Delta(w_2)$, and $f(E) \subseteq \Delta(w_1w_2w_3)$.
+	
+	For the second part, we proceed by induction: as our automaton is complete, all $f(a)$ map all state to at least one other state.
+	Clearly this property is stable by composition and acceleration, proving the lemma.
+\end{proof}
+
+\begin{lemma}
+	\label{lem:stab-property}
+	For all $E_1, E_2$ such that $f(E_1E_2)$ and $f(E_1E_2)$ are idempotent, $f((E_1E_2)^\#) = f(E_1(E_2E_1)^\# E_2)$.
+\end{lemma}
+
+\begin{proof}
+	We set $e_1 = f(E_1)$ and $e_2 = f(E_2)$.
+	
+	We unfold the definitions: Let $(s,t) \in (e_1 \cdot e_2)^\#$, we have that $(s,t), (t,t) \in e_1 \cdot e_2$ and $(t,t') \notin e_1 \cdot e_2$ for all $t' \neq t$.
+	
+	Thus there exist $s', s''$ such that $(s,s'), (t, s'') \in e_1$ and $(s',t), (s'',t) \in e_2$.  As a consequence, $(s', s''), (s'', s'') \in e_2 \cdot e_1$. Further, let $t' \neq s''$, suppose we have $(s'', t') \in e_2\cdot e_1$ then as our automaton is complete there exists $t''$ such that $(t', t'') \in e_2$ and thus $(t, t'') \in e1\cdot e_2 \cdot e_1 \cdot e_2$.
+	As $(t, u) \notin e_1 \cdot e_2$ for all $u \neq t$, we must have $t=t''$.
+	
+	However this implies, by Lemma~\ref{lem:word-exp}, that there exist $w_1, w_2$ such that $(t, s'') \in \Delta(w_1)$, $(s'', t), (s'', s'') \in \Delta(w_2w_1)$ and $(s'',t) \in \Delta(w_2)$. As a consequence, $(w_1w_2)^2$ labels two paths from $t$ to itself, contradicting the fact that $\aut$ is polynomially ambiguous.
+	
+	As a result, for all $t' \neq s''$, $(s'',t') \notin e_2\cdot e_1$. By definition, this means that $(s', s'') \in (e_2 \cdot e_1)^\#$, and thus that $(s,t) \in e_1 (e_2 \cdot e_1)^\# e_2$.
+	We have shown that $(e_1\cdot e_2)^\# \subseteq e_1 (e_2 \cdot e_1)^\# e_2$.
+	
+	We now prove the other direction. Let $(s,t) \in e_1 (e_2 \cdot e_1)^\# e_2$, there exist $s', t'$ such that $(s, s') \in e_1$, $(t',t) \in e_2$ and $(s', t') \in (e_2 \cdot e_1)^\#$.
+	By definition, $(s', t') \in e_2\cdot e_1$ and thus $(s,t) \in (e_1\cdot e_2)^2 = e_1 \cdot e_2$. 
+	Also, $(t', t) \in e_2$. By Lemma~\ref{lem:word-exp}, there exists $t''$ such that $(t,t'') \in e_1$, and thus $(t', t'') \in e_2 e_1$. As $(s', t') \in (e_2 e_1)^\#$, $t'' = t'$.
+	
+	Thus $e_1(t) = \set{t'}$. As a consequence, $(t,t) \in e_1e_2$. Now suppose there exists $t'' \neq t$ such that $(t', t'') \in e_2$, then by Lemma~\ref{lem:word-exp} there exists $t'''$ such that $(t'', t''') \in e_1$, and thus $(t', t''') \in e_2 e_1$, meaning that $t''' = t'$.
+	
+	By Lemma~\ref{lem:word-exp}, there exist words $w_1, w_2$ with $e_1 \subseteq \Delta(w_1)$ and $e_2 \subseteq \Delta(w_2)$. Hence there are paths labelled by $w_2$ from $t'$ to $t$ and $t''$, and by $w_1$ from $t$ and $t''$ to $t'$. This contradicts the fact that $\aut$ is polynomially ambiguous as there would then be two paths from $t'$ to itself.
+	
+	 As a result, $e2(t') = \set{t}$, and thus $e_1 e_2 (t) = \set{t}$.
+	 Hence $(s,t) \in (e_1 e_2)^\#$.
+	 
+	 This concludes our proof.
+\end{proof}
+
+\begin{lemma}
+	\label{lem:small-depth}
+	For all $E$ there exists an equivalent expression $F$ with at most $\size{S}$ nested $\#$.
+\end{lemma}
+
+\begin{proof}
+	First of all we eliminate useless $\#$: while $E$ has a subexpression $G^\#$ with $f(G) = f(G^\#)$, we replace $G^\#$ with $G$. This terminates as the size of $E$ is decreased at each iteration.
+	
+	Then we show that we can transform $E$ so that for all subexpressions $G^\#$ where $G$ has $k$ nested $\#$, $\size{post(f(G^\#))} \leq \size{S} - k -1$.
+	
+	Let $k \in \nats$, suppose we already have this property for all $k' < k$.
+	We consider each subformula of the form $G^\#$ with $G$ having $k$ nested $\#$.
+	If $k=0$ then if we had $\size{post(f(G^\#))} = \size{S}$, then necessarily we would have $f(G^\#) = \set{(s,s) \mid s \in S}$ and thus $post(f(G^\#)) = S = post(f(G))$, hence $f(G) = f(G^\#)$ by Lemma~\ref{lem:post-idem}, which is impossible as we eliminated those subexpressions.
+	
+	If $k > 0$, then $G = E_1 (E_2)^\# E_3$ with $E_2$ of $\#$ nesting depth $k-1$. Hence $\size{post(f(E_2^\#))} \leq \size{S} - k$. 
+	Furthermore, $f(G^\#) = f(E_1(E_2)^\# (E_3 E_1(E_2)^\#)^\# E_3)$. 
+	If we had $f((E_3 E_1(E_2)^\#)^\#) = f(E_3 E_1(E_2)^\#)$, then using Lemma~\ref{lem:stab-property} we would have $f(G^\#) = f(E_1(E_2)^\# (E_3 E_1(E_2)^\#)^\# E_3) = f(E_1(E_2)^\# E_3 E_1(E_2)^\# E_3) = f(G)^2 = f(G)$, a contradiction.
+	
+	Hence $f((E_3 E_1(E_2)^\#)^\#) \neq f(E_3 E_1(E_2)^\#)$, therefore by Lemma~\ref{lem:post-idem} $\size{post(f((E_3 E_1(E_2)^\#)^\#))} < \size{post(f(E_3 E_1(E_2)^\#))} = \size{post(f((E_2)^\#))} \leq \size{S} -k$.
+	
+	As a result, we can replace $G^\#$ with the expression $E_1(E_2)^\# (E_3 E_1(E_2)^\#)^\# E_3$ (equivalent by Lemma~\ref{lem:stab-property}), of equal $\#$ nesting depth, which respects the desired property.
+\end{proof}
+
+\begin{lemma}
+	\label{lem:exp-to-strat}
+	For all $E$ there exists a strategy $\sigma$ that ensures that from any configuration $C$ we almost surely eventually reach a configuration such that
+	all tokens initially in a state $s$ are in a state $t$ such that $(s,t) \in f(E)$ and
+	for all $(s,t) \in f(E)$ every token initially in $s$ has a positive probability to end up in $t$.
+	In particular if there exists $E$ such that $f(E)(init) =\set{fin}$, then there exists a winning strategy.
+\end{lemma}
+
+\begin{proof}
+	We prove this by induction on $E$.
+	
+	If $E$ is a letter $a$, then the strategy that simply reads $a$ and stops works.
+	
+	If $E = E_1 E_2$, let $sup \subseteq S$, by induction hypothesis we have strategies $\sigma_1$ and $\sigma_2$ enforcing the flows $f(E_1)$ and $f(E_2)$.
+	We apply $\sigma_1$ until we reach a configuration as described in the lemma.
+	Then we apply $\sigma_2$.
+	
+	After applying $\sigma_1$ all tokens initially in a state $s$ are in states of $f(E_1)(s)$, thus in the end they are all in states of $f(E_1E_2)(s)$.
+	
+	Let $(s,t) \in f(E_1E_2)$, there exist $s' \in f(E_1)(s)$ such that $t \in f(E_2) (s')$. All tokens initially in $s$ have a positive probability to end up in $s'$ after applying $\sigma_1$, and from there a positive probability to reach $t$ in the end.
+	
+	If $E= F^\#$ then by induction hypothesis there is a strategy $\sigma_F$ enforcing the flow $f(F)$.
+	
+	We apply this strategy repeatedly.
+	As $F$ is an idempotent, the relation $f(F)$ is transitive.
+	Therefore by applying $\sigma_F$ some number of times a token initially in $s$ can only reach states that are in $f(F)(s)$.
+	
+	Let $s \in S$, if $s \notin f(F)(s)$ then after applying $\sigma_F$ some number of times tokens that were initially in $s$ have to be in other states, therefore $s$ is empty.
+	
+	If $s \in f(F)(s)$ and there exists $t \neq s$ such that $(s,t) \in f(F)$, then $(t, s) \notin f(F)$, as by Lemma~\ref{lem:word-exp} there exists a word $w$ such that $f(F) \subseteq \Delta(w)$ and thus there would be two paths labelled by $w^2$ from $s$ to itself, contradicting the fact that the automaton is polynomially ambiguous.
+	
+	As a result, after each iteration of $\sigma_F$ tokens that were in $s$ have a positive probability to end up in $t$ and never come back to $s$ after later iterations of $\sigma_F$. Hence we can iterate $\sigma_F$ enough times to empty $s$ entirely.
+	
+	We define $\sigma_E$ as the strategy iterating $\sigma_F$ until all states $s$ such that $f(F)(s) \neq \set{s}$ are empty, and at least once.
+	Let $s,t \in S$, if $(s,t) \notin f(F)$ then no token initially in $s$ can be transferred to $t$ by applying $\sigma_E$ (as $f(F)$ is transitive).
+	
+	Furthermore, if $f(F)(t) \neq \set{t}$ then after applying $\sigma_E$ no token can be in $t$. By contrast, if $f(F)(t) = \set{t}$ and $(s,t) \in F$ then as we apply $\sigma_F$ at least once all tokens in $s$ have a positive probability to end up in $t$ on the first application of $\sigma_F$, and will then stay in $t$ forever if they did reach it. Hence all tokens in $s$ have a positive probability to reach $t$ after applying $\sigma_E$.
+	
+	This concludes our induction. 
+\end{proof}
+
+\begin{lemma}
+	\label{lem:strat-to-exp}
+	If there exists a winning strategy then there is an expression $E$ such that $f(E)(init) =\set{fin}$.
+\end{lemma}
+
+\begin{proof}
+	Suppose there is a winning strategy, then there is one $\sigma$ satisfying the properties described in Lemma~\ref{lem:simple-strat}. 
+	Let $M \in \nats$ be such that for all flow $f$, $f^M$ is idempotent.
+	
+	In order to construct an expression $E$ such that $f(E)(init) =\set{fin}$, we start in the initial support $\set{init}$ with $E = \epsilon$, and we proceed as follows:
+	if we are in a support $sup$ we never saw before, we set $E := E\sigma(sup)$ and $E_{sup} = E$ and go to support $sup' = \Delta(\sigma(sup))(sup)$. As $\sigma$ wins with probability one from any configuration of winning support, if $sup$ is a winning support then so is $sup'$.
+	If we are in a support $sup$ that we saw before, let $F$ be such that $E = E_{sup} F$. We set $E : = E (F^M)^\#$ and go to $sup' = f((F^M)^\#)(sup)$.
+	As $f((F^M)^\#) \subseteq f(F)$, $sup' \subseteq sup$ thus if $sup$ is a winning support then so is $sup'$.
+	
+	Note that as $\set{init}$ is a winning support, all the supports we encounter are winning.
+	Also, it is clear from the definition that at all times, if $sup$ is the current support and $E$ the current expression, then $f(E)(\set{init}) = sup$ and for all $sup'$ such that $E_{sup'}$ is defined, there exists $F$ such that $E = E_{sup'} F$ and $f(F)(sup') = sup$.
+	
+	The challenge now is to show that we eventually encounter the configuration $\set{fin}$.
+	To do so, we prove that we can encounter each support $sup$ at most $\size{S}$ times beforehand. More precisely, we prove that for all $n\geq 2$, if we encounter $sup$ for the $n$th time, then in the next step we obtain a support $sup'$ of size at most $\size{sup}-n+1$.
+	
+	For $n = 2$, suppose by contradiction that $sup' = sup$. Let $E$ be the current expression when we encounter $sup$ for the second time and $F$ be such that $E = E_{sup} F$. If $f((F^M)^\#) \cap sup = \set{(s,s) \mid s\in sup}$ then $f(F^M) = f((F^M)^\#)$. If $F$ does not contain any $\#$ then this contradicts the fact that $\sigma$ is winning as it shows that from $sup$ the strategy enters a loop without making any splits and without finding support $\set{fin}$.
+	 
+	Let $sup = sup_1, sup_2, \ldots, sup_m, sup_{m+1}, \ldots, sup_{m+k}$ and $a_1, \ldots, a_{m+k-1}$ be such that $sup_m = sup_{m+k}$ and for all $i$, $\sigma(sup_i) = a_i$ and $\Delta(sup_i, a_i) = sup_{i+1}$.
+	
+	As $\sigma$ is winning, one of those $A-i$ has to send some state $s \in sup_i$ to one of a different SCC or reach $\set{fin}$.
+	When we get to $sup$ for the second time, we must have taken all those actions at some point, as the step after first encountering $sup_i$ is executing $a_i$.
+	
+	Therefore one of those actions sent a state to one of a lower SCC, meaning that $\size{f(F)(s)}\geq 2$ for some $s \in sup$.
+	Hence $s \notin f((F^M)^\#)(sup)$ and thus $sup' \subsetneq sup$.
+	
+	Now suppose $n\geq 3$.
+	When we see $sup$ for the $n$th time we have an expression of the form $E = E_{sup} F (F^M)^\# G$ where $f(F) (sup) = sup$, with $E_{sup} F$ the expression we have when we encounter $sup$ for the $n-1$th time.
+	
+	Let $sup_{n-1} = f((F^M)^\#) (sup)$ and $sup_{n} = f((((F^M)^\# G)^M)^\#) (sup)$
+	
+	For all $s \in sup_n$, $f(((F^M)^\# G)^M)(s) = \set{s}$, thus there exists an unique $t$ such that $f(((F^M)^\# G)^{M-2} (F^M)^\# )(s) = \set{t}$ and $f(G(F^M)^\# G)(t) = \set{s}$.
+	
+	However,as $f(((F^M)^\# G)^{M-2} (F^M)^\#) (sup) = f((F^M)^\#)(sup) = sup_{n-1}$, by induction hypothesis this set contains at most $\size{sup}-n+2$. Furthermore by the previous argument some state must be sent to a lower component in $(F^M)^\# G$, hence we cannot have all of these $t$ sent to a single state and obtain $sup$ in the end.
+	
+	Hence $sup_n \subsetneq sup_{n-1}$, proving our result.
+	
+	As a consequence, we can encounter each support at most $\size{S}$ times before reaching $\set{fin}$.
+\end{proof}
+
+\begin{proposition}
+	The random population control problem is PSPACE-complete for polynomially ambiguous automata.
+\end{proposition}
+
+\begin{proof}
+	By Lemmas~\ref{lem:exp-to-strat} and~\ref{lem:strat-to-exp}, there exists a winning strategy if and only if there exists an expression $E$ such that $f(E)(init) = \set{fin}$.
+	We will therefore look for such an expression. 
+	
+	Furthermore, by Lemma~\ref{lem:small-depth} we only have to look for expressions of $\#$-depth at most $\size{S}$. This allows us to design the following NPSPACE algorithm: 
+	
+	\begin{algorithmic}
+		\State Input: a flow $fl$, an integer $n$
+		\State Output: an expression $E$ of $\#$-depth at most $n$ such that $f(E) = fl$, or $\bot$ if it does not exist. 
+		\Function{SearchExp}{fl,n} 
+		\If{$n<0$}
+			\Return $\bot$
+		\EndIf
+		\State $E = \epsilon$
+		\While{$f(E) \neq fl$}
+			\State Guess boolean $IsLetter$
+			\If{$IsLetter$}
+				\State Guess letter $a \in \Sigma$ 
+				\State $E \gets Ea$ 
+			\Else
+				\State Guess an idempotent flow $flow \subseteq \pow{S^2}$
+				\State $F \gets \Call{SearchExp}{flow, n-1}$
+				\If{$F = \bot$}
+					\Return $\bot$
+				\EndIf 
+				\State $E \gets EF$
+			\EndIf
+		\EndWhile
+		\Return $E$
+		\EndFunction
+	\end{algorithmic}
+
+We decide the problem by guessing a flow $fl$ such that $fl(init) = \set{fin}$ and executing $\sc{SearchExp}(fl, \size{S})$.
+\end{proof}
+
+
 
 \end{document}
